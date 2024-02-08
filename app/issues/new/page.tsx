@@ -7,15 +7,16 @@ import {useForm,Controller}from 'react-hook-form'
 import axios, { Axios } from 'axios';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import  {zodResolver}  from '@hookform/resolvers/zod';
+import { createIssueSchema } from '@/app/validationsSchema';
+import {z} from 'zod'
+type IssueForm=z.infer<typeof createIssueSchema>
 
-interface IssueForm {
-    title :string,
-    description: string 
-
-}
  const NewIssuePage = () => {
     const router=useRouter()
-    const {register,control,handleSubmit,getValues}=useForm<IssueForm>();
+    const {register,control,handleSubmit,getValues,formState :{errors}}=useForm<IssueForm>({
+        resolver:zodResolver(createIssueSchema)
+    });
      const [error,setError]=useState('')
   return (
     <div className='space-y-3 max-w-xl'>
@@ -36,6 +37,7 @@ interface IssueForm {
       <TextField.Root>
         <TextField.Input placeholder='title' {...register('title')}/>
       </TextField.Root>
+      {errors.title && <p color='red'>{errors.title.message}</p>}
       <Controller
       name='description'
       control={control}
@@ -50,10 +52,12 @@ interface IssueForm {
             onBlur={onBlur}
             placeholder='description'
           />
+          
         );
       }}
      
       /> 
+       {errors.description && <p color='red' >{errors.description.message}</p>}
       <Button>Submit New issue</Button>   
     </form></div>
   )
